@@ -20,14 +20,23 @@ parameters = {
     "age": os.environ.get("AGE"),
 }
 
+
 response = requests.post(exercise_endpoint, json=parameters, headers=headers)
 result = response.json()
+print(result)
 
 #   ====================== Start of Sheet API Mechanism =================================
 
 today_date = datetime.now().strftime("%d/%m/%Y")
 now_time = datetime.now().strftime("%X")
 
+basic_headers = {
+    "Authorization": os.environ.get("BASIC_AUTH")
+}
+
+bearer_headers = {
+    "Authorization": os.environ.get("BEARER_AUTH")
+}
 for exercise in result['exercises']:
     sheet_inputs = {
         "workout": {
@@ -38,9 +47,26 @@ for exercise in result['exercises']:
             "calories": exercise["nf_calories"]
         }
     }
-
+    # No Authentication
     sheet_response = requests.post(sheet_endpoint, json=sheet_inputs)
     print(sheet_response.text)
 
 
-print(result)
+    #   Basic Authentication
+    sheet_response = requests.post(
+        sheet_endpoint,
+        json=sheet_inputs,
+        headers=basic_headers
+    )
+    print(sheet_response.text)
+
+
+    # Bearer Authentication
+    sheet_response = requests.post(
+        sheet_endpoint,
+        json=sheet_inputs,
+        headers=bearer_headers
+    )
+    print(sheet_response.text)
+
+
